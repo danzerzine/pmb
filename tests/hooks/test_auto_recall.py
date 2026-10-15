@@ -326,6 +326,37 @@ def test_dispatch_skip_on_trivial():
     assert eng.calls == []
 
 
+@pytest.mark.parametrize("msg", [
+    '<agent-message from="a1b2c3">\n[Subagent hand-back] The text below is '
+    'the final report of a subagent.\n  Done: fixed it again, the old value '
+    'was wrong.\n</agent-message>',
+    "[Subagent hand-back] The text below is the final report of a subagent.",
+    "<task-notification>\n<task-id>x</task-id>\n<status>completed</status>"
+    "\n</task-notification>",
+])
+def test_dispatch_skip_on_machine_block(msg):
+    """Hand-backs and notifications are not user text: no context, no
+    correction capture, no draft lesson."""
+    eng = FakeEngine(lessons_result=[{"content": "L1", "surface_id": 1}])
+    res = run_auto_context(eng, msg)
+    assert res.skipped is True
+    assert res.intents == [Intent.SKIP]
+    assert res.skip_reason == "non-message (system/tool block)"
+    assert eng.calls == []
+    assert format_context(res) == ""
+
+
+def test_dispatch_user_correction_not_skipped():
+    """The machine-block skip must not swallow a real user correction."""
+    eng = FakeEngine()
+    res = run_auto_context(
+        eng, "how many times do I have to tell you this",
+        correction_record_draft=False,
+    )
+    assert res.skip_reason != "non-message (system/tool block)"
+    assert res.correction is not None
+
+
 def test_dispatch_past_query_calls_recall():
     eng = FakeEngine(
         recall_results=[
