@@ -494,9 +494,9 @@ def run_auto_context(
 
     # Non-message noise: task-notification / system-reminder / raw tool-output
     # blocks and subagent hand-backs (<agent-message ...>) get routed through
-    # the hook the same as user text, but they are
-    # NOT requests. Surfacing memory on them is pure noise - on the real
-    # workspace this was ~half of all lesson surfaces. Skip before classifying.
+    # the hook the same as user text, but they are NOT requests. Surfacing
+    # memory on them is pure noise - on the real workspace this was ~half of
+    # all lesson surfaces. Skip before classifying.
     _head = msg.lstrip()[:120].lower()
     if any(mk in _head for mk in (
         "<task-notification>", "<system-reminder>", "[system notification",
