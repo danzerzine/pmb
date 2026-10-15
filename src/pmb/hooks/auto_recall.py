@@ -451,6 +451,12 @@ def _looks_conversational(
     return True
 
 
+_PASTED_RE = re.compile(
+    r"<pasted_content\b[^>]*>.*?(?:</pasted_content\b[^>]*>|\Z)",
+    re.DOTALL | re.IGNORECASE,
+)
+
+
 def run_auto_context(
     engine,
     message: str,
@@ -500,6 +506,7 @@ def run_auto_context(
     if any(mk in _head for mk in (
         "<task-notification>", "<system-reminder>", "[system notification",
         "<tool-use-id>", "<command-name>", "<local-command",
+        "here is a note offered by a side agent",
     )):
         res.intents = [Intent.SKIP]
         res.skipped = True
@@ -525,7 +532,11 @@ def run_auto_context(
     if correction_capture:
         try:
             from pmb.hooks.correction_capture import detect_correction
-            correction_sig = detect_correction(msg)
+            # Only the user's own words can be a correction: text the user
+            # pasted (Claude Code wraps it in <pasted_content>) was written
+            # by someone else.
+            own = _PASTED_RE.sub(" ", msg).strip()
+            correction_sig = detect_correction(own) if own else None
         except Exception:
             correction_sig = None
     if correction_sig:

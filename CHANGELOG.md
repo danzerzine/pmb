@@ -11,6 +11,10 @@ All notable changes to PMB are documented here.
   removes stale files, and rolls back file moves on an I/O failure.
 
 ### Fixed
+- Correction capture only reads the user's own words: text inside
+  `<pasted_content>` (a pasted log, a reply from another assistant) and
+  Claude Code side-agent notes no longer produce a false "CORRECTION
+  DETECTED" or a draft lesson.
 - Ollama maintenance respects the model and endpoint saved in configuration.
   Explicit arguments and environment variables still override saved values;
   auto detection probes the same endpoint used for generation. HTTP model
