@@ -11,6 +11,10 @@ All notable changes to PMB are documented here.
   removes stale files, and rolls back file moves on an I/O failure.
 
 ### Fixed
+- Claude Code subagent hand-backs (`<agent-message ...>` / `[Subagent
+  hand-back]`) are skipped by the auto-context hook like other machine
+  blocks: no injected context, no false "CORRECTION DETECTED", no draft
+  lesson made from a subagent's report (issue #84).
 - Ollama maintenance respects the model and endpoint saved in configuration.
   Explicit arguments and environment variables still override saved values;
   auto detection probes the same endpoint used for generation. HTTP model
